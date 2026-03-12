@@ -1,0 +1,92 @@
+# A113221055 徐宇宸的履歷
+
+## 關於我
+
+### 基本資料 ✈︎ ▯▯
+- 我叫徐宇宸，目前就讀資訊管理學系資訊管理組大二，來自台北，對軟體開發與程式設計十分有興趣。
+
+### 我的目標
+- 希望未來能成為一名軟體工程師，開發出對社會有貢獻的軟體。
+
+### 我的興趣
+- 打電動
+- 打籃球
+- 看動漫(心臓を捧げよ！)
+
+## 座右銘 
+
+`沒有一件事是做不到的，只要你肯努力。`
+---
+
+## 我學過的程式課程
+### 目前正在學習：
+- Python
+- C#
+- HTML
+- CSS
+
+### 程式碼展示
+```python
+import random
+
+number = random.randint(1, 10)
+guess = int(input("猜一個 1 到 10 的數字: "))
+
+if guess == number:
+    print("猜對了！")
+else:
+    print("猜錯了，答案是", number)
+```
+
+### 未來想學
+- App開發
+- 軟體開發
+
+### 技能表 (卐)
+| 技能 | 熟練度 |
+| --- | --- |
+| Python | ⭐⭐⭐ |
+| C# | ⭐⭐ |
+| HTML | ⭐⭐ |
+| CSS | ⭐⭐ |
+| 做飲料 | ⭐⭐⭐⭐⭐ |
+| 手沖咖啡 | ⭐⭐⭐⭐ |
+| 煮火鍋 | ⭐⭐⭐⭐⭐ |
+| 煮泡麵 | ⭐⭐⭐⭐⭐ |
+| 煮水餃 | ⭐⭐⭐⭐⭐ |
+
+### 我的學習計畫(流程圖)
+## 學習計畫路徑圖
+
+```mermaid
+graph TD
+    subgraph Stage1 [Phase 1: 鞏固基礎]
+        A1[Web 進階: RWD/Flexbox]
+        A2[Python 資料分析應用]
+        A3[C# 物件導向程式設計 OOP]
+    end
+
+    subgraph Stage2 [Phase 2: 前端與 App]
+        B1[JavaScript/TypeScript 核心]
+        B2[React 框架學習]
+        B3[Expo & React Native App 開發]
+    end
+
+    subgraph Stage3 [Phase 3: 後端與資料]
+        C1[API 設計: .NET 或 FastAPI]
+        C2[資料庫管理: SQL/NoSQL]
+        C3[Git 版本控制]
+    end
+
+    subgraph Stage4 [Phase 4: 實務專案]
+        D1[個人實戰專案: 註冊系統 App]
+        D2[AI API 整合應用]
+        D3[UI/UX 介面設計優化]
+    end
+
+    A1 & A2 & A3 --> B1
+    B1 --> B2 --> B3
+    B3 --> C1
+    C1 --> C2 --> C3
+    C3 --> D1
+    D1 --> D2 --> D3
