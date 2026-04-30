@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>山羌茶坊 | 智慧環境感知點餐系統</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2d5a27;
+            --primary-light: #4a7c44;
+            --accent: #d4a373;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text: #333;
+            --text-muted: #666;
+            --error: #e63946;
+            --success: #2a9d8f;
+            --weather-bg: #eef2f3;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 950px;
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            min-height: 700px;
+        }
+
+        /* Menu Section */
+        .menu-section {
+            padding: 40px;
+            border-right: 1px solid #eee;
+        }
+
+        header {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .brand-info {
+            flex-grow: 1;
+        }
+
+        .brand-logo {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Weather Widget */
+        .weather-widget {
+            background: var(--weather-bg);
+            padding: 12px 18px;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            min-width: 120px;
+            border: 1px solid #dee2e6;
+        }
+
+        .weather-temp {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .weather-loc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Recommendation Banner */
+        .recommendation-banner {
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            border-left: 4px solid var(--accent);
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+
+        .rec-icon {
+            font-size: 28px;
+        }
+
+        .rec-content h5 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 2px;
+        }
+
+        .rec-content p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .product-card {
+            border: 1px solid #eee;
+            border-radius: 16px;
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .product-card:hover {
+            border-color: var(--primary-light);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+
+        .product-card.active {
+            border-color: var(--primary);
+            background-color: rgba(45, 90, 39, 0.05);
+            border-width: 2px;
+        }
+
+        .product-name {
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .product-price {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .options-section {
+            margin-top: 30px;
+            display: none;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .option-group {
+            margin-bottom: 20px;
+        }
+
+        .option-title {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .chip-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .chip {
+            padding: 10px 20px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .chip:hover {
+            background-color: #f8f9fa;
+            border-color: var(--primary-light);
+        }
+
+        .chip.selected {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 8px rgba(45, 90, 39, 0.2);
+        }
+
+        .add-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 15px;
+            box-shadow: 0 6px 12px rgba(45, 90, 39, 0.2);
+        }
+
+        .add-btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-1px);
+        }
+
+        /* Order Summary Section */
+        .summary-section {
+            background-color: #fcfcfc;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .cart-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .cart-items {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .item-info h4 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .item-info p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .item-price {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--primary);
+        }
+
+        .total-box {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 2px dashed #ddd;
+        }
+
+        .promo-container {
+            margin-bottom: 25px;
+        }
+
+        .promo-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .promo-input {
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .promo-input:focus {
+            border-color: var(--primary);
+        }
+
+        .promo-btn {
+            padding: 0 20px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .price-row.discount {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .price-row.grand-total {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 20px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 25px;
+            box-shadow: 0 10px 20px rgba(212, 163, 115, 0.3);
+            transition: all 0.3s;
+        }
+
+        .checkout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(212, 163, 115, 0.4);
+        }
+
+        /* Notifications */
+        #note-bar {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #333;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10000;
+        }
+
+        #note-bar.visible {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .error-hint {
+            color: var(--error);
+            font-size: 12px;
+            margin-top: 6px;
+            font-weight: 500;
+            display: none;
+        }
+
+        @media (max-width: 850px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            .menu-section {
+                border-right: none;
+                border-bottom: 1px solid #eee;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="note-bar"></div>
+
+    <div class="app-container">
+        <!-- Menu Section -->
+        <div class="menu-section">
+            <header>
+                <div class="brand-info">
+                    <div class="brand-logo">🦌 山羌茶坊</div>
+                    <p class="subtitle">您好，歡迎使用智慧感測結帳系統</p>
+                </div>
+                <div class="weather-widget">
+                    <div class="weather-temp" id="dispTemp">19.3°C</div>
+                    <div class="weather-loc">臺北市 | 陰天</div>
+                </div>
+            </header>
+
+            <!-- Weather Recommendation (Get Weather Skill Integration) -->
+            <div class="recommendation-banner" id="weatherRec">
+                <div class="rec-icon">☕</div>
+                <div class="rec-content">
+                    <h5 id="recTitle">店長氣候推薦</h5>
+                    <p id="recDesc">今日體感微涼 (19.3°C)，推薦您來杯暖心的『特調奶茶』，溫潤您的心靈。</p>
+                </div>
+            </div>
+
+            <div class="section-title">🍵 精選茶飲</div>
+            <div class="product-grid">
+                <div class="product-card" onclick="pick('TEA_RED', '天下紅茶', 40)">
+                    <div class="product-name">天下紅茶</div>
+                    <div class="product-price">$40</div>
+                </div>
+                <div class="product-card" onclick="pick('TEA_GRN', '天下綠茶', 35)">
+                    <div class="product-name">天下綠茶</div>
+                    <div class="product-price">$35</div>
+                </div>
+                <div class="product-card" onclick="pick('MILK_TEA', '特調奶茶', 55)">
+                    <div class="product-name">特調奶茶</div>
+                    <div class="product-price">$55</div>
+                </div>
+            </div>
+
+            <div class="options-section" id="options">
+                <div class="section-title">✨ 定製您的口味 - <span id="curProd">產品</span></div>
+                
+                <div class="option-group">
+                    <div class="option-title">溫度選擇</div>
+                    <div class="chip-group" id="optTemp">
+                        <div class="chip selected" onclick="setOpt('temp', '冰')">冰</div>
+                        <div class="chip" onclick="setOpt('temp', '去冰')">去冰</div>
+                        <div class="chip" onclick="setOpt('temp', '熱')">熱</div>
+                    </div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-title">甜度調整</div>
+                    <div class="chip-group" id="optSugar">
+                        <div class="chip selected" onclick="setOpt('sugar', '正常')">正常</div>
+                        <div class="chip" onclick="setOpt('sugar', '半糖')">半糖</div>
+                        <div class="chip" onclick="setOpt('sugar', '微糖')">微糖</div>
+                        <div class="chip" onclick="setOpt('sugar', '無糖')">無糖</div>
+                    </div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-title">加料加購 (+$10)</div>
+                    <div class="chip-group" id="optTops">
+                        <div class="chip" onclick="toggleTop('TOP_BOBA', '珍珠')">珍珠</div>
+                        <div class="chip" onclick="toggleTop('TOP_JELLY', '椰果')">椰果</div>
+                    </div>
+                    <div id="ruleError" class="error-hint"></div>
+                </div>
+
+                <button class="add-btn" onclick="add()">加入購物清單</button>
+            </div>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="summary-section">
+            <div class="cart-header">
+                <div class="cart-title">您的訂單</div>
+                <div style="font-size: 12px; color: #999;" id="orderCount">0 項目</div>
+            </div>
+            
+            <div class="cart-items" id="cartList">
+                <div style="text-align: center; margin-top: 60px; color: #ccc;">
+                    <div style="font-size: 40px; margin-bottom: 10px;">🧺</div>
+                    目前還沒有點餐喔
+                </div>
+            </div>
+
+            <div class="total-box">
+                <div class="promo-container">
+                    <div class="promo-input-group">
+                        <input type="text" id="pCode" class="promo-input" placeholder="請輸入促銷代碼">
+                        <button class="promo-btn" onclick="apply()">套用</button>
+                    </div>
+                </div>
+
+                <div class="price-row">
+                    <span>商品小計</span>
+                    <span id="subTotal">$0</span>
+                </div>
+                <div class="price-row discount" id="discRow" style="display: none;">
+                    <span>促銷折抵 (TENKA_80)</span>
+                    <span id="discAmt">-$0</span>
+                </div>
+                <div class="price-row grand-total">
+                    <span>應付總額</span>
+                    <span id="netTotal">$0</span>
+                </div>
+
+                <button class="checkout-btn" onclick="finish()">確認結帳並支付</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cart = [];
+        let cur = null;
+        let opts = { temp: '冰', sugar: '正常', tops: [] };
+        let promo = false;
+
+        // Initialize weather from MCP data
+        const currentTemp = 19.3;
+        
+        function initWeather() {
+            const banner = document.getElementById('weatherRec');
+            const title = document.getElementById('recTitle');
+            const desc = document.getElementById('recDesc');
+            const icon = banner.querySelector('.rec-icon');
+
+            if (currentTemp > 28) {
+                title.innerText = "酷熱消暑推薦";
+                desc.innerText = `氣溫炎熱 (${currentTemp}°C)，快來杯冰涼的『天下綠茶』去火解渴！`;
+                icon.innerText = "☀️";
+            } else if (currentTemp < 16) {
+                title.innerText = "寒冬暖身推薦";
+                desc.innerText = `天冷注意保暖 (${currentTemp}°C)，推薦溫熱的『特調奶茶』溫暖您的手心。`;
+                icon.innerText = "❄️";
+            } else {
+                title.innerText = "舒爽微涼推薦";
+                desc.innerText = `今日體感微涼 (${currentTemp}°C)，推薦您來杯暖心的『特調奶茶』，溫潤您的心靈。`;
+                icon.innerText = "☁️";
+            }
+        }
+        initWeather();
+
+        function pick(id, name, price) {
+            cur = { id, name, price };
+            document.getElementById('curProd').innerText = name;
+            document.getElementById('options').style.display = 'block';
+            
+            // Reset logic
+            opts = { temp: '冰', sugar: '正常', tops: [] };
+            refreshUI();
+
+            document.querySelectorAll('.product-card').forEach(c => {
+                c.classList.toggle('active', c.innerText.includes(name));
+            });
+        }
+
+        function setOpt(type, val) {
+            opts[type] = val;
+            if (type === 'temp') checkRules();
+            refreshUI();
+        }
+
+        function toggleTop(id, name) {
+            const idx = opts.tops.findIndex(t => t.id === id);
+            if (idx > -1) opts.tops.splice(idx, 1);
+            else opts.tops.push({ id, name, price: 10 });
+            
+            checkRules();
+            refreshUI();
+        }
+
+        function checkRules() {
+            const isHot = opts.temp === '熱';
+            const hasBoba = opts.tops.some(t => t.id === 'TOP_BOBA');
+            const err = document.getElementById('ruleError');
+
+            if (isHot && hasBoba) {
+                opts.tops = opts.tops.filter(t => t.id !== 'TOP_BOBA');
+                err.innerText = "很抱歉，基於茶飲品質堅持，熱飲暫不提供珍珠加購，建議您改選冰飲。";
+                err.style.display = 'block';
+                toast("規則攔截：熱飲不可加珍珠", "#e63946");
+            } else {
+                err.style.display = 'none';
+            }
+        }
+
+        function refreshUI() {
+            document.querySelectorAll('#optTemp .chip').forEach(c => c.classList.toggle('selected', c.innerText === opts.temp));
+            document.querySelectorAll('#optSugar .chip').forEach(c => c.classList.toggle('selected', c.innerText === opts.sugar));
+            document.querySelectorAll('#optTops .chip').forEach(c => {
+                const active = opts.tops.some(t => c.innerText.includes(t.name));
+                c.classList.toggle('selected', active);
+            });
+        }
+
+        function add() {
+            if (!cur) return;
+            const price = cur.price + (opts.tops.length * 10);
+            cart.push({ ...cur, opts: { ...opts }, price });
+            updateCart();
+            toast("商品已加入清單", "#2d5a27");
+        }
+
+        function updateCart() {
+            const list = document.getElementById('cartList');
+            document.getElementById('orderCount').innerText = `${cart.length} 項目`;
+            
+            if (cart.length === 0) {
+                list.innerHTML = `<div style="text-align: center; margin-top: 60px; color: #ccc;"><div style="font-size: 40px; margin-bottom: 10px;">🧺</div>目前還沒有點餐喔</div>`;
+                calc();
+                return;
+            }
+
+            list.innerHTML = '';
+            cart.forEach((item, i) => {
+                const div = document.createElement('div');
+                div.className = 'cart-item';
+                const tops = item.opts.tops.map(t => t.name).join(', ');
+                div.innerHTML = `
+                    <div class="item-info">
+                        <h4>${item.name}</h4>
+                        <p>${item.opts.temp} | ${item.opts.sugar} ${tops ? '+ '+tops : ''}</p>
+                    </div>
+                    <div class="item-price">$${item.price}</div>
+                `;
+                list.appendChild(div);
+            });
+            calc();
+        }
+
+        function calc() {
+            const sub = cart.reduce((acc, i) => acc + i.price, 0);
+            document.getElementById('subTotal').innerText = `$${sub}`;
+            
+            let final = sub;
+            if (promo) {
+                const off = Math.round(sub * 0.2);
+                final = sub - off;
+                document.getElementById('discRow').style.display = 'flex';
+                document.getElementById('discAmt').innerText = `-$${off}`;
+            } else {
+                document.getElementById('discRow').style.display = 'none';
+            }
+            document.getElementById('netTotal').innerText = `$${final}`;
+        }
+
+        function apply() {
+            const code = document.getElementById('pCode').value;
+            if (code === 'TENKA_80') {
+                promo = true;
+                toast("促銷代碼套用成功 (8折)", "#2a9d8f");
+                calc();
+            } else {
+                toast("無效的代碼", "#e63946");
+            }
+        }
+
+        function finish() {
+            if (cart.length === 0) return toast("購物車是空的喔", "#e63946");
+            toast("訂單傳送成功！感謝您的點購", "#d4a373");
+            cart = [];
+            promo = false;
+            document.getElementById('pCode').value = '';
+            updateCart();
+        }
+
+        function toast(txt, col) {
+            const b = document.getElementById('note-bar');
+            b.innerText = txt;
+            b.style.background = col;
+            b.classList.add('visible');
+            setTimeout(() => b.classList.remove('visible'), 3000);
+        }
+    </script>
+</body>
+</html>
