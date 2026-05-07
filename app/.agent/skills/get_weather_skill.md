@@ -41,6 +41,7 @@
 | **tool_name** | `get_weather` |
 | **input_param** | `city: string`（來源：Knowledge 天氣查詢城市） |
 | **output_field** | `current_temp: number` (°C) |
+| **city_default**| `Indonesia` |
 
 ### 錯誤處理矩陣 (Error Handling)
 
