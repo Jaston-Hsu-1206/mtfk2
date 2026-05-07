@@ -29,3 +29,4 @@ description:
 | **S2** | **Validate_Policy** | 執行業務規則校驗 | 是否合規標籤 (True/False) |
 | **S3** | **Calc_Price** | 執行金額自動計算 | 最終實付總額 (Net_Total) |
 | **S4** | **Confirm_Order** | 產出訂單摘要 | 支付連結、訂單序號 |
+| **S5（自動通知）** | 先通過 `notification_consent` 檢查權限，通過後將 Persona 產生的「推播內容」傳遞給 `line_messaging_skill` 進行發送 |

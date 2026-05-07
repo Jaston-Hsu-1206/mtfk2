@@ -558,16 +558,16 @@
 
             if (currentTemp > 28) {
                 title.innerText = "酷熱消暑推薦";
-                desc.innerText = `氣溫炎熱 (${currentTemp}°C)，快來杯冰涼的『天下綠茶』去火解渴！`;
+                desc.innerText = `氣溫炎熱 (${currentTemp}°C)，快來杯冰涼的『特調奶茶 (冰)』去火解渴！`;
                 icon.innerText = "☀️";
-            } else if (currentTemp < 16) {
+            } else if (currentTemp < 15) {
                 title.innerText = "寒冬暖身推薦";
-                desc.innerText = `天冷注意保暖 (${currentTemp}°C)，推薦溫熱的『特調奶茶』溫暖您的手心。`;
+                desc.innerText = `天冷注意保暖 (${currentTemp}°C)，推薦溫熱的『天下紅茶 (熱)』溫暖您的手心。`;
                 icon.innerText = "❄️";
             } else {
                 title.innerText = "舒爽微涼推薦";
-                desc.innerText = `今日體感微涼 (${currentTemp}°C)，推薦您來杯暖心的『特調奶茶』，溫潤您的心靈。`;
-                icon.innerText = "☁️";
+                desc.innerText = `今日體感微涼 (${currentTemp}°C)，推薦您來杯招牌的『天下紅茶』或『天下綠茶』，享受愜意時光。`;
+                icon.innerText = "🍃";
             }
         }
         initWeather();
