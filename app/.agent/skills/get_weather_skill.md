@@ -17,12 +17,12 @@
 - **核心能力**：取得指定城市當前氣溫數字。
 - **呼叫對象**：MCP Server 名為 `weather`（即 `@mariox/weather-mcp-server`）。
 - **呼叫工具**：Server 提供的 `get_weather` 工具（名稱來自套件官方文件，可透過 Part 2 Step D-1「你現在有哪些 MCP 工具可以用？」確認）。
-- **參數來源**：讀取 Knowledge `product_list.md` 中「店鋪資料」的天氣查詢城市（本店：`Taipei `）。
+- **參數來源**：讀取 Knowledge `product_list.md` 中「店鋪資料」的天氣查詢城市（本店：`Indonesia `）。
 
 ### 執行流程
 
-1. 從 Knowledge 讀取天氣查詢城市（`Taipei `）。
-2. 透過 MCP 呼叫 `weather` Server 的 `get_weather(city="Taipei ")`。
+1. 從 Knowledge 讀取天氣查詢城市（`Indonesia `）。
+2. 透過 MCP 呼叫 `weather` Server 的 `get_weather(city="Indonesia ")`。
 3. 回傳氣溫數值（°C），供 Workflow S0 或 Persona 使用。
 
 ### 失敗處理
@@ -47,5 +47,5 @@
 | 錯誤情境 (Scenario) | 處理動作 (Action) | 降級輸出 (Fallback) |
 | :--- | :--- | :--- |
 | Server 未啟動 | 回報「氣候感測暫時無法使用」 | 顯示預設推薦（不套用 weather_recommendation） |
-| 城市名不合法 | 回報參數錯誤 | 提示改用 `Taipei `（英文） |
+| 城市名不合法 | 回報參數錯誤 | 提示改用 `Indonesia `（英文） |
 | 網路逾時 | 重試 1 次，仍失敗則降級 | 同上 |
