@@ -219,6 +219,44 @@
             font-size: 14px;
         }
 
+        .rec-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--accent);
+            color: white;
+            font-size: 9px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 100px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: none;
+            box-shadow: 0 4px 10px rgba(212, 163, 115, 0.3);
+        }
+
+        .product-card.recommended {
+            border-color: var(--accent);
+            background: rgba(212, 163, 115, 0.03);
+        }
+        .product-card.recommended .rec-badge {
+            display: block;
+        }
+
+        .chip.recommended::after {
+            content: '推薦';
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: var(--accent);
+            color: white;
+            font-size: 8px;
+            padding: 2px 5px;
+            border-radius: 4px;
+            pointer-events: none;
+        }
+        .chip { position: relative; }
+
         /* Options Overlay */
         .options-section {
             position: absolute;
@@ -477,16 +515,19 @@
                 </div>
 
                 <div class="section-title">🍵 精選茶飲</div>
-                <div class="product-grid">
-                    <div class="product-card" onclick="pick('TEA_RED', '天下紅茶', 40)">
+                <div class="product-grid" id="prodGrid">
+                    <div class="product-card" id="TEA_RED" onclick="pick('TEA_RED', '天下紅茶', 40)">
+                        <div class="rec-badge">Best Match</div>
                         <div class="product-name">天下紅茶</div>
                         <div class="product-price">$40</div>
                     </div>
-                    <div class="product-card" onclick="pick('TEA_GRN', '天下綠茶', 35)">
+                    <div class="product-card" id="TEA_GRN" onclick="pick('TEA_GRN', '天下綠茶', 35)">
+                        <div class="rec-badge">Best Match</div>
                         <div class="product-name">天下綠茶</div>
                         <div class="product-price">$35</div>
                     </div>
-                    <div class="product-card" onclick="pick('MILK_TEA', '特調奶茶', 55)">
+                    <div class="product-card" id="MILK_TEA" onclick="pick('MILK_TEA', '特調奶茶', 55)">
+                        <div class="rec-badge">Best Match</div>
                         <div class="product-name">特調奶茶</div>
                         <div class="product-price">$55</div>
                     </div>
@@ -608,19 +649,34 @@
             const icon = banner.querySelector('.rec-icon');
 
             // Recommendation Logic based on topping_limit.md
+            document.querySelectorAll('.product-card').forEach(c => c.classList.remove('recommended'));
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('recommended'));
+
             if (temp > 28) {
                 title.innerText = "高溫消暑推薦";
                 desc.innerText = `氣溫炎熱 (${temp}°C)，主推冷飲：『特調奶茶（冰）』。`;
                 icon.innerText = "☀️";
+                document.getElementById('MILK_TEA').classList.add('recommended');
+                markChip('optTemp', '冰');
             } else if (temp >= 15 && temp <= 28) {
                 title.innerText = "舒適環境推薦";
                 desc.innerText = `溫度適中 (${temp}°C)，主推招牌茶類：『天下紅茶』或『天下綠茶』。`;
                 icon.innerText = "🍃";
+                document.getElementById('TEA_RED').classList.add('recommended');
+                document.getElementById('TEA_GRN').classList.add('recommended');
             } else {
                 title.innerText = "寒冷環境推薦";
                 desc.innerText = `天氣寒冷 (${temp}°C)，主推熱飲：『天下紅茶（熱）』。`;
                 icon.innerText = "❄️";
+                document.getElementById('TEA_RED').classList.add('recommended');
+                markChip('optTemp', '熱');
             }
+        }
+
+        function markChip(groupId, text) {
+            document.querySelectorAll(`#${groupId} .chip`).forEach(c => {
+                if (c.innerText === text) c.classList.add('recommended');
+            });
         }
 
         function changeRegion() {
