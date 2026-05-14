@@ -14,6 +14,8 @@ description:
 - **第二步：規則檢查**。核對選單內容，確認是否存在熱飲加珍珠等不合規組合。
 - **第三步：金額結算**。調用 Skills 模組，計算最終應付總額。
 - **第四步：確認結帳**。產出最終訂單明細，並導引顧客進行支付支付。
+- **第五步：LINE 通知**。結帳完成後，透過 LINE 發送訂單確認通知給顧客。
+- **第六步：雲端存檔**。將訂單詳細資料同步存入 Turso 雲端資料庫，確保資料持久化。
 
 ---
 
@@ -29,4 +31,5 @@ description:
 | **S2** | **Validate_Policy** | 執行業務規則校驗 | 是否合規標籤 (True/False) |
 | **S3** | **Calc_Price** | 執行金額自動計算 | 最終實付總額 (Net_Total) |
 | **S4** | **Confirm_Order** | 產出訂單摘要 | 支付連結、訂單序號 |
-| **S5（自動通知）** | 先通過 `notification_consent` 檢查權限，通過後將 Persona 產生的「推播內容」傳遞給 `line_messaging_skill` 進行發送 |
+| **S5** | **Line_Notify** | 呼叫 `line_messaging_skill` 發送通知 | 推播成功狀態 |
+| **S6** | **Persistence** | 呼叫 `db_storage_skill` 將資料存入 Turso | 『您的訂單已安全存入雲端資料庫』 |

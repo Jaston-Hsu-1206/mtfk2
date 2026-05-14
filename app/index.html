@@ -4,140 +4,175 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>山羌茶坊 | 智慧環境感知點餐系統</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- LibSQL Web Client SDK -->
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@libsql/client@0.17.3/web';
+        window.libsql = { createClient };
+    </script>
+    <script src="checkout.js" type="module"></script>
     <style>
         :root {
             --primary: #2d5a27;
             --primary-light: #4a7c44;
+            --primary-ultra-light: rgba(45, 90, 39, 0.05);
             --accent: #d4a373;
-            --bg: #f8f9fa;
+            --bg: #ffffff;
             --card-bg: #ffffff;
-            --text: #333;
-            --text-muted: #666;
-            --error: #e63946;
-            --success: #2a9d8f;
-            --weather-bg: #eef2f3;
+            --text: #1a1a1a;
+            --text-muted: #717171;
+            --error: #ff4d4f;
+            --success: #52c41a;
+            --weather-bg: #f0f4f8;
+            --glass: rgba(255, 255, 255, 0.8);
+            --shadow: 0 8px 30px rgba(0,0,0,0.08);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Noto Sans TC', sans-serif;
-            background-color: var(--bg);
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background-color: #f2f2f7;
             color: var(--text);
-            line-height: 1.6;
+            line-height: 1.5;
             display: flex;
             justify-content: center;
-            align-items: center;
             min-height: 100vh;
-            padding: 20px;
         }
 
         .app-container {
-            width: 100%;
-            max-width: 950px;
-            background: var(--card-bg);
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 95vw;
+            max-width: 400px;
+            aspect-ratio: 9 / 16;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: var(--shadow);
+            border-radius: 44px;
+            border: 10px solid #1a1a1a; /* Phone Frame */
             overflow: hidden;
-            display: grid;
-            grid-template-columns: 1.6fr 1fr;
-            min-height: 700px;
+            margin: auto;
+            animation: phoneEntrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        @keyframes phoneEntrance {
+            from { opacity: 0; transform: scale(0.9) translateY(40px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* Internal Scrollable Content */
+        .scroll-container {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            scrollbar-width: none; /* Hide scrollbar for cleaner look */
+        }
+        .scroll-container::-webkit-scrollbar { display: none; }
+
+        /* Header & Brand */
+        header {
+            padding: 24px 20px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         /* Menu Section */
         .menu-section {
-            padding: 40px;
-            border-right: 1px solid #eee;
-        }
-
-        header {
-            margin-bottom: 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-
-        .brand-info {
-            flex-grow: 1;
+            padding: 0 20px 100px; /* Extra bottom padding for cart summary */
+            flex: 1;
         }
 
         .brand-logo {
-            font-size: 26px;
-            font-weight: 700;
+            font-size: 22px;
+            font-weight: 800;
             color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 5px;
+            letter-spacing: -0.5px;
         }
 
         .subtitle {
             color: var(--text-muted);
-            font-size: 14px;
+            font-size: 13px;
+            margin-top: -2px;
         }
 
-        /* Weather Widget */
         .weather-widget {
             background: var(--weather-bg);
-            padding: 12px 18px;
-            border-radius: 16px;
+            padding: 8px 14px;
+            border-radius: 20px;
             display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            min-width: 120px;
-            border: 1px solid #dee2e6;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(0,0,0,0.03);
         }
 
         .weather-temp {
-            font-size: 20px;
+            font-size: 15px;
             font-weight: 700;
             color: var(--primary);
         }
 
         .weather-loc {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-muted);
+            border-left: 1px solid #ddd;
+            padding-left: 8px;
         }
 
         /* Recommendation Banner */
         .recommendation-banner {
-            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-            border-left: 4px solid var(--accent);
-            padding: 15px 20px;
-            border-radius: 12px;
-            margin-bottom: 30px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #eef2f3 100%);
+            border-radius: 18px;
+            padding: 16px;
+            margin: 15px 0 25px;
             display: flex;
             align-items: center;
-            gap: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            gap: 12px;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
         }
 
         .rec-icon {
-            font-size: 28px;
+            font-size: 24px;
+            background: white;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
 
         .rec-content h5 {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             color: var(--primary);
             margin-bottom: 2px;
         }
 
         .rec-content p {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-muted);
+            line-height: 1.4;
         }
 
         .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: var(--primary);
+            font-size: 17px;
+            font-weight: 700;
+            margin: 25px 0 15px;
+            color: var(--text);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -146,107 +181,113 @@
         .product-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 12px;
         }
 
         .product-card {
-            border: 1px solid #eee;
-            border-radius: 16px;
-            padding: 18px;
+            background: #fff;
+            border: 1.5px solid #f0f0f0;
+            border-radius: 20px;
+            padding: 16px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 4px;
         }
 
-        .product-card:hover {
-            border-color: var(--primary-light);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        .product-card:active {
+            transform: scale(0.96);
+            background: #fafafa;
         }
 
         .product-card.active {
             border-color: var(--primary);
-            background-color: rgba(45, 90, 39, 0.05);
-            border-width: 2px;
+            background-color: var(--primary-ultra-light);
+            box-shadow: 0 8px 20px rgba(45, 90, 39, 0.1);
         }
 
         .product-name {
             font-weight: 700;
             font-size: 15px;
+            color: var(--text);
         }
 
         .product-price {
             color: var(--accent);
-            font-weight: 600;
+            font-weight: 700;
             font-size: 14px;
         }
 
+        /* Options Overlay */
         .options-section {
-            margin-top: 30px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 24px 24px 0 0;
+            padding: 24px 20px 30px;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+            z-index: 1000;
             display: none;
-            animation: slideUp 0.4s ease;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .options-section.show {
+            display: block;
+            transform: translateY(0);
         }
 
         .option-group {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .option-title {
             font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: #888;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         .chip-group {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
         }
 
         .chip {
-            padding: 10px 20px;
-            border: 1px solid #ddd;
-            border-radius: 25px;
+            padding: 10px 18px;
+            border: 1.5px solid #f0f0f0;
+            border-radius: 14px;
             font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            background: white;
-        }
-
-        .chip:hover {
-            background-color: #f8f9fa;
-            border-color: var(--primary-light);
+            background: #fff;
+            color: var(--text-muted);
         }
 
         .chip.selected {
             background-color: var(--primary);
             color: white;
             border-color: var(--primary);
-            box-shadow: 0 4px 8px rgba(45, 90, 39, 0.2);
         }
 
         .add-btn {
             width: 100%;
-            padding: 16px;
+            padding: 18px;
             background: var(--primary);
             color: white;
             border: none;
-            border-radius: 14px;
+            border-radius: 18px;
             font-size: 16px;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
-            margin-top: 15px;
-            box-shadow: 0 6px 12px rgba(45, 90, 39, 0.2);
+            box-shadow: 0 8px 20px rgba(45, 90, 39, 0.25);
         }
 
         .add-btn:hover {
@@ -254,288 +295,270 @@
             transform: translateY(-1px);
         }
 
-        /* Order Summary Section */
+        /* Cart Summary Bottom Bar */
         .summary-section {
-            background-color: #fcfcfc;
-            padding: 40px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            padding: 14px 20px 24px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 900;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+        }
+
+        .cart-mini-info {
             display: flex;
             flex-direction: column;
         }
 
+        .cart-mini-total {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .cart-mini-count {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .view-cart-btn {
+            background: var(--accent);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 16px;
+            font-weight: 800;
+            font-size: 15px;
+            border: none;
+            box-shadow: 0 6px 15px rgba(212, 163, 115, 0.25);
+        }
+
+        /* Full Cart Overlay */
+        #cartOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            animation: slideUpIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUpIn {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
         .cart-header {
+            padding: 24px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
+            border-bottom: 1px solid #f0f0f0;
         }
 
-        .cart-title {
-            font-size: 20px;
-            font-weight: 700;
+        .close-cart {
+            font-size: 24px;
+            cursor: pointer;
         }
 
         .cart-items {
-            flex-grow: 1;
+            flex: 1;
             overflow-y: auto;
+            padding: 20px;
         }
 
         .cart-item {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .item-info h4 {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .item-info p {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .item-price {
-            font-weight: 700;
-            font-size: 15px;
-            color: var(--primary);
+            align-items: center;
+            margin-bottom: 16px;
+            background: #f9f9f9;
+            padding: 16px;
+            border-radius: 18px;
         }
 
         .total-box {
-            margin-top: 25px;
-            padding-top: 25px;
-            border-top: 2px dashed #ddd;
-        }
-
-        .promo-container {
-            margin-bottom: 25px;
-        }
-
-        .promo-input-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        .promo-input {
-            flex-grow: 1;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            font-size: 14px;
-            outline: none;
-        }
-
-        .promo-input:focus {
-            border-color: var(--primary);
-        }
-
-        .promo-btn {
-            padding: 0 20px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .price-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-
-        .price-row.discount {
-            color: var(--success);
-            font-weight: 600;
-        }
-
-        .price-row.grand-total {
-            font-size: 24px;
-            font-weight: 800;
-            color: var(--primary);
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
+            padding: 24px 20px 40px;
+            border-top: 1.5px dashed #eee;
+            background: #fafafa;
         }
 
         .checkout-btn {
             width: 100%;
-            padding: 20px;
-            background: var(--accent);
+            padding: 18px;
+            background: var(--primary);
             color: white;
             border: none;
-            border-radius: 16px;
-            font-size: 18px;
+            border-radius: 18px;
+            font-size: 17px;
             font-weight: 800;
-            cursor: pointer;
-            margin-top: 25px;
-            box-shadow: 0 10px 20px rgba(212, 163, 115, 0.3);
-            transition: all 0.3s;
+            margin-top: 20px;
+            box-shadow: 0 10px 25px rgba(45, 90, 39, 0.2);
         }
 
-        .checkout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(212, 163, 115, 0.4);
-        }
-
-        /* Notifications */
         #note-bar {
-            position: fixed;
-            bottom: 30px;
+            position: absolute;
+            top: 20px;
             left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: #333;
+            transform: translateX(-50%) translateY(-100px);
+            background: rgba(0,0,0,0.85);
             color: white;
-            padding: 14px 28px;
-            border-radius: 50px;
-            font-size: 14px;
-            font-weight: 500;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 10000;
+            padding: 10px 20px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            z-index: 5000;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1.2);
+            white-space: nowrap;
         }
 
         #note-bar.visible {
             transform: translateX(-50%) translateY(0);
         }
 
-        .error-hint {
-            color: var(--error);
-            font-size: 12px;
-            margin-top: 6px;
-            font-weight: 500;
+        .overlay-mask {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(4px);
+            z-index: 950;
             display: none;
-        }
-
-        @media (max-width: 850px) {
-            .app-container {
-                grid-template-columns: 1fr;
-            }
-            .menu-section {
-                border-right: none;
-                border-bottom: 1px solid #eee;
-            }
         }
     </style>
 </head>
 <body>
 
-    <div id="note-bar"></div>
-
     <div class="app-container">
-        <!-- Menu Section -->
-        <div class="menu-section">
-            <header>
-                <div class="brand-info">
-                    <div class="brand-logo">🦌 山羌茶坊</div>
-                    <p class="subtitle">您好，歡迎使用智慧感測結帳系統</p>
+        <div id="note-bar"></div>
+        <div class="overlay-mask" id="mask" onclick="closeOverlays()"></div>
+        
+        <div class="scroll-container">
+            <!-- Menu Section -->
+            <div class="menu-section">
+                <header>
+                    <div class="brand-info">
+                        <div class="brand-logo">鹿 山羌茶坊</div>
+                        <p class="subtitle">Smart Ordering System</p>
+                    </div>
+                    <div class="weather-widget">
+                    <select id="regionSelect" onchange="changeRegion()" style="background: transparent; border: none; font-size: 11px; font-weight: 600; color: var(--text-muted); cursor: pointer; outline: none; margin-bottom: 2px;">
+                        <option value="Taipei">Taipei 台北</option>
+                        <option value="Tokyo">Tokyo 東京</option>
+                        <option value="Yokohama">Kanagawa 神奈川</option>
+                    </select>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <div class="weather-temp" id="dispTemp">--°C</div>
+                        <div class="weather-loc" id="dispStatus">Loading...</div>
+                    </div>
                 </div>
-                <div class="weather-widget">
-                    <div class="weather-temp" id="dispTemp">28.4°C</div>
-                    <div class="weather-loc">Indonesia | 陰天</div>
-                </div>
-            </header>
+                </header>
 
-            <!-- Weather Recommendation (Get Weather Skill Integration) -->
-            <div class="recommendation-banner" id="weatherRec">
-                <div class="rec-icon">☕</div>
-                <div class="rec-content">
-                    <h5 id="recTitle">店長氣候推薦</h5>
-                    <p id="recDesc">今日體感微涼 (19.3°C)，推薦您來杯暖心的『特調奶茶』，溫潤您的心靈。</p>
-                </div>
-            </div>
-
-            <div class="section-title">🍵 精選茶飲</div>
-            <div class="product-grid">
-                <div class="product-card" onclick="pick('TEA_RED', '天下紅茶', 40)">
-                    <div class="product-name">天下紅茶</div>
-                    <div class="product-price">$40</div>
-                </div>
-                <div class="product-card" onclick="pick('TEA_GRN', '天下綠茶', 35)">
-                    <div class="product-name">天下綠茶</div>
-                    <div class="product-price">$35</div>
-                </div>
-                <div class="product-card" onclick="pick('MILK_TEA', '特調奶茶', 55)">
-                    <div class="product-name">特調奶茶</div>
-                    <div class="product-price">$55</div>
-                </div>
-            </div>
-
-            <div class="options-section" id="options">
-                <div class="section-title">✨ 定製您的口味 - <span id="curProd">產品</span></div>
-                
-                <div class="option-group">
-                    <div class="option-title">溫度選擇</div>
-                    <div class="chip-group" id="optTemp">
-                        <div class="chip selected" onclick="setOpt('temp', '冰')">冰</div>
-                        <div class="chip" onclick="setOpt('temp', '去冰')">去冰</div>
-                        <div class="chip" onclick="setOpt('temp', '熱')">熱</div>
+                <!-- Weather Recommendation -->
+                <div class="recommendation-banner" id="weatherRec">
+                    <div class="rec-icon">☀️</div>
+                    <div class="rec-content">
+                        <h5 id="recTitle">酷熱消暑推薦</h5>
+                        <p id="recDesc">氣溫炎熱 (28.4°C)，快來杯冰涼的特調奶茶去火解渴！</p>
                     </div>
                 </div>
 
-                <div class="option-group">
-                    <div class="option-title">甜度調整</div>
-                    <div class="chip-group" id="optSugar">
-                        <div class="chip selected" onclick="setOpt('sugar', '正常')">正常</div>
-                        <div class="chip" onclick="setOpt('sugar', '半糖')">半糖</div>
-                        <div class="chip" onclick="setOpt('sugar', '微糖')">微糖</div>
-                        <div class="chip" onclick="setOpt('sugar', '無糖')">無糖</div>
+                <div class="section-title">🍵 精選茶飲</div>
+                <div class="product-grid">
+                    <div class="product-card" onclick="pick('TEA_RED', '天下紅茶', 40)">
+                        <div class="product-name">天下紅茶</div>
+                        <div class="product-price">$40</div>
+                    </div>
+                    <div class="product-card" onclick="pick('TEA_GRN', '天下綠茶', 35)">
+                        <div class="product-name">天下綠茶</div>
+                        <div class="product-price">$35</div>
+                    </div>
+                    <div class="product-card" onclick="pick('MILK_TEA', '特調奶茶', 55)">
+                        <div class="product-name">特調奶茶</div>
+                        <div class="product-price">$55</div>
                     </div>
                 </div>
-
-                <div class="option-group">
-                    <div class="option-title">加料加購 (+$10)</div>
-                    <div class="chip-group" id="optTops">
-                        <div class="chip" onclick="toggleTop('TOP_BOBA', '珍珠')">珍珠</div>
-                        <div class="chip" onclick="toggleTop('TOP_JELLY', '椰果')">椰果</div>
-                    </div>
-                    <div id="ruleError" class="error-hint"></div>
-                </div>
-
-                <button class="add-btn" onclick="add()">加入購物清單</button>
             </div>
         </div>
 
-        <!-- Summary Section -->
-        <div class="summary-section">
-            <div class="cart-header">
-                <div class="cart-title">您的訂單</div>
-                <div style="font-size: 12px; color: #999;" id="orderCount">0 項目</div>
+        <!-- Mini Cart Bar -->
+        <div class="summary-section" id="miniCart">
+            <div class="cart-mini-info">
+                <div class="cart-mini-total" id="miniTotal">$0</div>
+                <div class="cart-mini-count" id="miniCount">0 項目</div>
             </div>
+            <button class="view-cart-btn" onclick="openCart()">查看訂單</button>
+        </div>
+
+        <!-- Options Overlay -->
+        <div class="options-section" id="options">
+            <div class="section-title" style="margin-top: 0;">✨ <span id="curProd">產品</span></div>
             
-            <div class="cart-items" id="cartList">
-                <div style="text-align: center; margin-top: 60px; color: #ccc;">
-                    <div style="font-size: 40px; margin-bottom: 10px;">🧺</div>
-                    目前還沒有點餐喔
+            <div class="option-group">
+                <div class="option-title">溫度選擇</div>
+                <div class="chip-group" id="optTemp">
+                    <div class="chip selected" onclick="setOpt('temp', '冰')">冰</div>
+                    <div class="chip" onclick="setOpt('temp', '去冰')">去冰</div>
+                    <div class="chip" onclick="setOpt('temp', '熱')">熱</div>
                 </div>
             </div>
 
-            <div class="total-box">
-                <div class="promo-container">
-                    <div class="promo-input-group">
-                        <input type="text" id="pCode" class="promo-input" placeholder="請輸入促銷代碼">
-                        <button class="promo-btn" onclick="apply()">套用</button>
-                    </div>
+            <div class="option-group">
+                <div class="option-title">甜度調整</div>
+                <div class="chip-group" id="optSugar">
+                    <div class="chip selected" onclick="setOpt('sugar', '正常')">正常</div>
+                    <div class="chip" onclick="setOpt('sugar', '半糖')">半糖</div>
+                    <div class="chip" onclick="setOpt('sugar', '微糖')">微糖</div>
+                    <div class="chip" onclick="setOpt('sugar', '無糖')">無糖</div>
                 </div>
+            </div>
 
-                <div class="price-row">
-                    <span>商品小計</span>
-                    <span id="subTotal">$0</span>
+            <div class="option-group">
+                <div class="option-title">加料加購 (+$10)</div>
+                <div class="chip-group" id="optTops">
+                    <div class="chip" onclick="toggleTop('TOP_BOBA', '珍珠')">珍珠</div>
+                    <div class="chip" onclick="toggleTop('TOP_JELLY', '椰果')">椰果</div>
                 </div>
-                <div class="price-row discount" id="discRow" style="display: none;">
+                <div id="ruleError" style="color: var(--error); font-size: 11px; margin-top: 8px; font-weight: 600; display: none; line-height: 1.3;"></div>
+            </div>
+
+            <button class="add-btn" onclick="add()">加入購物清單</button>
+        </div>
+
+        <!-- Full Cart Overlay -->
+        <div id="cartOverlay">
+            <div class="cart-header">
+                <div style="font-size: 20px; font-weight: 800;">您的訂單</div>
+                <div class="close-cart" onclick="closeCart()">✕</div>
+            </div>
+            <div class="cart-items" id="cartList">
+                <!-- Cart items will be injected here -->
+            </div>
+            <div class="total-box">
+                <div class="price-row">
+                    <span style="color: #888;">商品小計</span>
+                    <span id="subTotal" style="font-weight: 700;">$0</span>
+                </div>
+                <div class="price-row discount" id="discRow" style="display: none; color: var(--success);">
                     <span>促銷折抵 (TENKA_80)</span>
                     <span id="discAmt">-$0</span>
                 </div>
-                <div class="price-row grand-total">
+                <div class="price-row" style="margin-top: 15px; font-size: 24px; font-weight: 800; color: var(--primary);">
                     <span>應付總額</span>
                     <span id="netTotal">$0</span>
                 </div>
-
                 <button class="checkout-btn" onclick="finish()">確認結帳並支付</button>
             </div>
         </div>
@@ -545,50 +568,94 @@
         let cart = [];
         let cur = null;
         let opts = { temp: '冰', sugar: '正常', tops: [] };
-        let promo = false;
+        let currentTemp = 25; // Default
 
-        // Initialize weather from MCP data
-        const currentTemp = 28.4;
-        
-        function initWeather() {
+        const locations = {
+            Taipei: { lat: 25.0330, lon: 121.5654, name: "Taipei" },
+            Tokyo: { lat: 35.6895, lon: 139.6917, name: "Tokyo" },
+            Yokohama: { lat: 35.4433, lon: 139.6367, name: "Kanagawa" }
+        };
+
+        async function fetchWeather(city = 'Taipei') {
+            const loc = locations[city];
+            const statusEl = document.getElementById('dispStatus');
+            if (statusEl) statusEl.innerText = "Fetching...";
+            
+            try {
+                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current_weather=true`);
+                const data = await res.json();
+                currentTemp = data.current_weather.temperature;
+                updateWeatherUI(currentTemp, city);
+            } catch (e) {
+                console.error("Weather fetch failed", e);
+                updateWeatherUI(25, city); // Fallback
+            }
+        }
+
+        function updateWeatherUI(temp, city) {
+            const tempEl = document.getElementById('dispTemp');
+            const statusEl = document.getElementById('dispStatus');
+            if (tempEl) tempEl.innerText = `${temp}°C`;
+            if (statusEl) statusEl.innerText = `${city}`;
+            
             const banner = document.getElementById('weatherRec');
+            if (!banner) return;
+            
             const title = document.getElementById('recTitle');
             const desc = document.getElementById('recDesc');
             const icon = banner.querySelector('.rec-icon');
 
-            if (currentTemp > 28) {
-                title.innerText = "酷熱消暑推薦";
-                desc.innerText = `氣溫炎熱 (${currentTemp}°C)，快來杯冰涼的『特調奶茶 (冰)』去火解渴！`;
+            // Recommendation Logic based on topping_limit.md
+            if (temp > 28) {
+                title.innerText = "高溫消暑推薦";
+                desc.innerText = `氣溫炎熱 (${temp}°C)，主推冷飲：『特調奶茶（冰）』。`;
                 icon.innerText = "☀️";
-            } else if (currentTemp < 15) {
-                title.innerText = "寒冬暖身推薦";
-                desc.innerText = `天冷注意保暖 (${currentTemp}°C)，推薦溫熱的『天下紅茶 (熱)』溫暖您的手心。`;
-                icon.innerText = "❄️";
-            } else {
-                title.innerText = "舒爽微涼推薦";
-                desc.innerText = `今日體感微涼 (${currentTemp}°C)，推薦您來杯招牌的『天下紅茶』或『天下綠茶』，享受愜意時光。`;
+            } else if (temp >= 15 && temp <= 28) {
+                title.innerText = "舒適環境推薦";
+                desc.innerText = `溫度適中 (${temp}°C)，主推招牌茶類：『天下紅茶』或『天下綠茶』。`;
                 icon.innerText = "🍃";
+            } else {
+                title.innerText = "寒冷環境推薦";
+                desc.innerText = `天氣寒冷 (${temp}°C)，主推熱飲：『天下紅茶（熱）』。`;
+                icon.innerText = "❄️";
             }
         }
-        initWeather();
+
+        function changeRegion() {
+            const city = document.getElementById('regionSelect').value;
+            fetchWeather(city);
+        }
+
+        // Initialize
+        fetchWeather();
 
         function pick(id, name, price) {
             cur = { id, name, price };
             document.getElementById('curProd').innerText = name;
-            document.getElementById('options').style.display = 'block';
             
-            // Reset logic
+            document.getElementById('mask').style.display = 'block';
+            const optSection = document.getElementById('options');
+            optSection.style.display = 'block';
+            setTimeout(() => optSection.classList.add('show'), 10);
+            
             opts = { temp: '冰', sugar: '正常', tops: [] };
+            const err = document.getElementById('ruleError');
+            if (err) err.style.display = 'none';
             refreshUI();
+        }
 
-            document.querySelectorAll('.product-card').forEach(c => {
-                c.classList.toggle('active', c.innerText.includes(name));
-            });
+        function closeOverlays() {
+            document.getElementById('mask').style.display = 'none';
+            document.getElementById('options').classList.remove('show');
+            setTimeout(() => {
+                document.getElementById('options').style.display = 'none';
+            }, 400);
+            closeCart();
         }
 
         function setOpt(type, val) {
             opts[type] = val;
-            if (type === 'temp') checkRules();
+            checkRules();
             refreshUI();
         }
 
@@ -596,23 +663,24 @@
             const idx = opts.tops.findIndex(t => t.id === id);
             if (idx > -1) opts.tops.splice(idx, 1);
             else opts.tops.push({ id, name, price: 10 });
-            
             checkRules();
             refreshUI();
         }
 
         function checkRules() {
-            const isHot = opts.temp === '熱';
-            const hasBoba = opts.tops.some(t => t.id === 'TOP_BOBA');
             const err = document.getElementById('ruleError');
-
-            if (isHot && hasBoba) {
+            const hasBoba = opts.tops.some(t => t.id === 'TOP_BOBA');
+            
+            // Logic from topping_limit.md: Hot drinks cannot have Boba
+            if (opts.temp === '熱' && hasBoba) {
                 opts.tops = opts.tops.filter(t => t.id !== 'TOP_BOBA');
-                err.innerText = "很抱歉，基於茶飲品質堅持，熱飲暫不提供珍珠加購，建議您改選冰飲。";
-                err.style.display = 'block';
-                toast("規則攔截：熱飲不可加珍珠", "#e63946");
+                if (err) {
+                    err.innerText = "很抱歉，基於茶飲品質堅持，熱飲暫不提供珍珠加購，建議您改選冰飲。";
+                    err.style.display = 'block';
+                }
+                toast("⚠️ 規則攔截：熱飲不可加珍珠", "#ff4d4f");
             } else {
-                err.style.display = 'none';
+                if (err) err.style.display = 'none';
             }
         }
 
@@ -630,16 +698,37 @@
             const price = cur.price + (opts.tops.length * 10);
             cart.push({ ...cur, opts: { ...opts }, price });
             updateCart();
-            toast("商品已加入清單", "#2d5a27");
+            closeOverlays();
+            toast("✅ 已加入購物車", "#2d5a27");
+        }
+
+        function openCart() {
+            if (cart.length === 0) return toast("🧺 購物車還是空的喔", "#555");
+            document.getElementById('cartOverlay').style.display = 'flex';
+            document.getElementById('mask').style.display = 'block';
+        }
+
+        function closeCart() {
+            document.getElementById('cartOverlay').style.display = 'none';
+            document.getElementById('mask').style.display = 'none';
         }
 
         function updateCart() {
             const list = document.getElementById('cartList');
-            document.getElementById('orderCount').innerText = `${cart.length} 項目`;
+            const miniTotal = document.getElementById('miniTotal');
+            const miniCount = document.getElementById('miniCount');
+            const subTotal = document.getElementById('subTotal');
+            const netTotal = document.getElementById('netTotal');
+
+            const total = cart.reduce((acc, i) => acc + i.price, 0);
             
+            if (miniCount) miniCount.innerText = `${cart.length} 項目`;
+            if (miniTotal) miniTotal.innerText = `$${total}`;
+            if (subTotal) subTotal.innerText = `$${total}`;
+            if (netTotal) netTotal.innerText = `$${total}`;
+
             if (cart.length === 0) {
-                list.innerHTML = `<div style="text-align: center; margin-top: 60px; color: #ccc;"><div style="font-size: 40px; margin-bottom: 10px;">🧺</div>目前還沒有點餐喔</div>`;
-                calc();
+                list.innerHTML = `<div style="text-align: center; margin-top: 60px; color: #ccc;">目前沒有點餐</div>`;
                 return;
             }
 
@@ -647,61 +736,47 @@
             cart.forEach((item, i) => {
                 const div = document.createElement('div');
                 div.className = 'cart-item';
-                const tops = item.opts.tops.map(t => t.name).join(', ');
                 div.innerHTML = `
-                    <div class="item-info">
-                        <h4>${item.name}</h4>
-                        <p>${item.opts.temp} | ${item.opts.sugar} ${tops ? '+ '+tops : ''}</p>
+                    <div>
+                        <div style="font-weight: 700;">${item.name}</div>
+                        <div style="font-size: 11px; color: #888;">${item.opts.temp} | ${item.opts.sugar}</div>
                     </div>
-                    <div class="item-price">$${item.price}</div>
+                    <div style="font-weight: 800; color: var(--primary);">$${item.price}</div>
                 `;
                 list.appendChild(div);
             });
-            calc();
         }
 
-        function calc() {
-            const sub = cart.reduce((acc, i) => acc + i.price, 0);
-            document.getElementById('subTotal').innerText = `$${sub}`;
+        async function finish() {
+            if (cart.length === 0) return;
             
-            let final = sub;
-            if (promo) {
-                const off = Math.round(sub * 0.2);
-                final = sub - off;
-                document.getElementById('discRow').style.display = 'flex';
-                document.getElementById('discAmt').innerText = `-$${off}`;
-            } else {
-                document.getElementById('discRow').style.display = 'none';
-            }
-            document.getElementById('netTotal').innerText = `$${final}`;
-        }
+            const btn = document.querySelector('.checkout-btn');
+            const originalText = btn.innerText;
+            btn.innerText = "正在同步雲端...";
+            btn.disabled = true;
 
-        function apply() {
-            const code = document.getElementById('pCode').value;
-            if (code === 'TENKA_80') {
-                promo = true;
-                toast("促銷代碼套用成功 (8折)", "#2a9d8f");
-                calc();
-            } else {
-                toast("無效的代碼", "#e63946");
+            try {
+                // Call the sync function from checkout.js
+                const orderId = await window.syncOrderToTurso(cart);
+                toast(`🚀 訂單 ${orderId} 已送出！`, "#d4a373");
+                cart = [];
+                updateCart();
+                closeCart();
+            } catch (err) {
+                toast("❌ 雲端同步失敗，請稍後再試", "#ff4d4f");
+                console.error(err);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
             }
-        }
-
-        function finish() {
-            if (cart.length === 0) return toast("購物車是空的喔", "#e63946");
-            toast("訂單傳送成功！感謝您的點購", "#d4a373");
-            cart = [];
-            promo = false;
-            document.getElementById('pCode').value = '';
-            updateCart();
         }
 
         function toast(txt, col) {
             const b = document.getElementById('note-bar');
+            if (!b) return;
             b.innerText = txt;
-            b.style.background = col;
             b.classList.add('visible');
-            setTimeout(() => b.classList.remove('visible'), 3000);
+            setTimeout(() => b.classList.remove('visible'), 2500);
         }
     </script>
 </body>
