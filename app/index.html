@@ -458,6 +458,7 @@
                         <option value="Taipei">Taipei 台北</option>
                         <option value="Tokyo">Tokyo 東京</option>
                         <option value="Yokohama">Kanagawa 神奈川</option>
+                        <option value="Mumbai">India 印度</option>
                     </select>
                     <div style="display: flex; align-items: center; gap: 5px;">
                         <div class="weather-temp" id="dispTemp">--°C</div>
@@ -573,7 +574,8 @@
         const locations = {
             Taipei: { lat: 25.0330, lon: 121.5654, name: "Taipei" },
             Tokyo: { lat: 35.6895, lon: 139.6917, name: "Tokyo" },
-            Yokohama: { lat: 35.4433, lon: 139.6367, name: "Kanagawa" }
+            Yokohama: { lat: 35.4433, lon: 139.6367, name: "Kanagawa" },
+            Mumbai: { lat: 19.0760, lon: 72.8777, name: "India" }
         };
 
         async function fetchWeather(city = 'Taipei') {
